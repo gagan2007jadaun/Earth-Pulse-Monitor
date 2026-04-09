@@ -1,0 +1,276 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); }
+  .dash { padding: 1rem; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 8px; }
+  .header-title { font-size: 17px; font-weight: 500; color: var(--color-text-primary); }
+  .header-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .status-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 0.5px solid; }
+  .status-safe { background: #EAF3DE; color: #3B6D11; border-color: #97C459; }
+  .status-danger { background: #FCEBEB; color: #A32D2D; border-color: #E24B4A; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-safe { background: #639922; }
+  .dot-danger { background: #E24B4A; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .metric-card { background: var(--color-background-secondary); border-radius: 8px; padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+  .metric-unit { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .metric-bar { height: 4px; border-radius: 2px; background: var(--color-border-tertiary); margin-top: 8px; }
+  .metric-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  @media(max-width: 550px){ .charts-row { grid-template-columns: 1fr; } }
+  .chart-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 14px; }
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 10px; }
+  .alerts-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 14px; margin-bottom: 1.25rem; }
+  .alerts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .alerts-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .clear-btn { font-size: 12px; color: var(--color-text-secondary); background: none; border: 0.5px solid var(--color-border-tertiary); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+  .alert-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .alert-danger-icon { background: #FCEBEB; color: #A32D2D; }
+  .alert-warn-icon { background: #FAEEDA; color: #854F0B; }
+  .alert-info-icon { background: #E6F1FB; color: #185FA5; }
+  .alert-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.4; }
+  .alert-time { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .controls-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sim-btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+  .sim-btn:hover { background: var(--color-background-secondary); }
+  .sim-danger { background: #FCEBEB; color: #A32D2D; border-color: #E24B4A; }
+  .sim-safe { background: #EAF3DE; color: #3B6D11; border-color: #97C459; }
+  .section-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+</style>
+
+<div class="dash">
+  <div class="header">
+    <div>
+      <div class="header-title">Smart Geocell Road – Landslide Monitor</div>
+      <div class="header-sub">North East India | Real-time IoT Dashboard</div>
+    </div>
+    <div class="status-badge status-safe" id="statusBadge">
+      <div class="dot dot-safe" id="statusDot"></div>
+      <span id="statusText">Safe</span>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-label">Soil Moisture</div>
+      <div class="metric-value" id="soilVal">38</div>
+      <div class="metric-unit">% saturation</div>
+      <div class="metric-bar"><div class="metric-fill" id="soilBar" style="width:38%; background:#378ADD;"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Water Level</div>
+      <div class="metric-value" id="waterVal">22</div>
+      <div class="metric-unit">cm accumulation</div>
+      <div class="metric-bar"><div class="metric-fill" id="waterBar" style="width:22%; background:#1D9E75;"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Risk Index</div>
+      <div class="metric-value" id="riskVal">Low</div>
+      <div class="metric-unit">Current level</div>
+      <div class="metric-bar"><div class="metric-fill" id="riskBar" style="width:20%; background:#639922;"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">SMS Alerts Sent</div>
+      <div class="metric-value" id="smsCount">2</div>
+      <div class="metric-unit">Today</div>
+      <div class="metric-bar"><div class="metric-fill" id="smsBar" style="width:20%; background:#BA7517;"></div></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Soil moisture – last 12 readings</div>
+      <div style="position:relative; height:160px;">
+        <canvas id="soilChart" role="img" aria-label="Soil moisture trend over last 12 readings">Soil moisture data chart.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Water level – last 12 readings</div>
+      <div style="position:relative; height:160px;">
+        <canvas id="waterChart" role="img" aria-label="Water level trend over last 12 readings">Water level data chart.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="alerts-card">
+    <div class="alerts-header">
+      <div class="alerts-title">Alert history</div>
+      <button class="clear-btn" onclick="clearAlerts()">Clear</button>
+    </div>
+    <div id="alertList">
+      <div class="alert-row">
+        <div class="alert-icon alert-info-icon">i</div>
+        <div><div class="alert-text">System started. All sensors online.</div><div class="alert-time">Today, 08:00 AM</div></div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-icon alert-warn-icon">!</div>
+        <div><div class="alert-text">Soil moisture crossed 60%. Monitoring closely.</div><div class="alert-time">Today, 09:15 AM</div></div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-icon alert-info-icon">✓</div>
+        <div><div class="alert-text">Conditions returned to normal. Green status restored.</div><div class="alert-time">Today, 09:45 AM</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Simulate sensor conditions</div>
+  <div class="controls-row">
+    <button class="sim-btn sim-danger" onclick="simulateDanger()">Trigger danger alert</button>
+    <button class="sim-btn sim-safe" onclick="simulateSafe()">Reset to safe</button>
+    <button class="sim-btn" onclick="addReading()">Add live reading</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const soilData = [30,33,36,35,38,40,37,36,38,39,37,38];
+const waterData = [15,16,18,17,20,22,20,19,21,22,20,22];
+let smsCount = 2;
+let isDanger = false;
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { display: false },
+    y: { ticks: { font: { size: 11 }, color: '#888' }, grid: { color: 'rgba(128,128,128,0.15)' } }
+  }
+};
+
+const soilChart = new Chart(document.getElementById('soilChart'), {
+  type: 'line',
+  data: {
+    labels: soilData.map((_,i) => i+1),
+    datasets: [{
+      data: soilData,
+      borderColor: '#378ADD',
+      backgroundColor: 'rgba(55,138,221,0.08)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+      borderWidth: 2
+    }]
+  },
+  options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, suggestedMin: 0, suggestedMax: 100 } } }
+});
+
+const waterChart = new Chart(document.getElementById('waterChart'), {
+  type: 'line',
+  data: {
+    labels: waterData.map((_,i) => i+1),
+    datasets: [{
+      data: waterData,
+      borderColor: '#1D9E75',
+      backgroundColor: 'rgba(29,158,117,0.08)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+      borderWidth: 2
+    }]
+  },
+  options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, suggestedMin: 0, suggestedMax: 80 } } }
+});
+
+function pushData(chart, arr, val) {
+  arr.push(val);
+  if (arr.length > 12) arr.shift();
+  chart.data.labels = arr.map((_,i) => i+1);
+  chart.data.datasets[0].data = [...arr];
+  chart.update('none');
+}
+
+function updateMetrics(soil, water) {
+  document.getElementById('soilVal').textContent = soil;
+  document.getElementById('waterVal').textContent = water;
+  document.getElementById('soilBar').style.width = Math.min(soil, 100) + '%';
+  document.getElementById('waterBar').style.width = Math.min(water * 1.25, 100) + '%';
+}
+
+function setStatus(danger) {
+  isDanger = danger;
+  const badge = document.getElementById('statusBadge');
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  const risk = document.getElementById('riskVal');
+  const riskBar = document.getElementById('riskBar');
+  if (danger) {
+    badge.className = 'status-badge status-danger';
+    dot.className = 'dot dot-danger';
+    text.textContent = 'Danger';
+    risk.textContent = 'High';
+    riskBar.style.width = '90%';
+    riskBar.style.background = '#E24B4A';
+  } else {
+    badge.className = 'status-badge status-safe';
+    dot.className = 'dot dot-safe';
+    text.textContent = 'Safe';
+    risk.textContent = 'Low';
+    riskBar.style.width = '20%';
+    riskBar.style.background = '#639922';
+  }
+}
+
+function addAlert(type, msg) {
+  const icons = { danger: { cls: 'alert-danger-icon', sym: '!' }, warn: { cls: 'alert-warn-icon', sym: '!' }, info: { cls: 'alert-info-icon', sym: 'i' } };
+  const ic = icons[type] || icons.info;
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const row = document.createElement('div');
+  row.className = 'alert-row';
+  row.innerHTML = `<div class="alert-icon ${ic.cls}">${ic.sym}</div><div><div class="alert-text">${msg}</div><div class="alert-time">Today, ${time}</div></div>`;
+  const list = document.getElementById('alertList');
+  list.insertBefore(row, list.firstChild);
+}
+
+function simulateDanger() {
+  const soil = 82 + Math.floor(Math.random() * 10);
+  const water = 65 + Math.floor(Math.random() * 10);
+  pushData(soilChart, soilData, soil);
+  pushData(waterChart, waterData, water);
+  updateMetrics(soil, water);
+  setStatus(true);
+  smsCount++;
+  document.getElementById('smsCount').textContent = smsCount;
+  document.getElementById('smsBar').style.width = Math.min(smsCount * 10, 100) + '%';
+  addAlert('danger', `ALERT: Soil moisture at ${soil}%, water level ${water}cm. SMS sent to registered number.`);
+}
+
+function simulateSafe() {
+  const soil = 30 + Math.floor(Math.random() * 20);
+  const water = 12 + Math.floor(Math.random() * 15);
+  pushData(soilChart, soilData, soil);
+  pushData(waterChart, waterData, water);
+  updateMetrics(soil, water);
+  setStatus(false);
+  addAlert('info', `Conditions normalised. Soil: ${soil}%, Water: ${water}cm. System is safe.`);
+}
+
+function addReading() {
+  const base_soil = isDanger ? 75 : 35;
+  const base_water = isDanger ? 60 : 18;
+  const soil = base_soil + Math.floor(Math.random() * 15);
+  const water = base_water + Math.floor(Math.random() * 12);
+  pushData(soilChart, soilData, soil);
+  pushData(waterChart, waterData, water);
+  updateMetrics(soil, water);
+  if (soil > 70 || water > 55) {
+    setStatus(true);
+    smsCount++;
+    document.getElementById('smsCount').textContent = smsCount;
+    addAlert('warn', `Reading: Soil ${soil}%, Water ${water}cm — elevated risk detected.`);
+  } else {
+    addAlert('info', `New reading added. Soil: ${soil}%, Water: ${water}cm.`);
+  }
+}
+
+function clearAlerts() {
+  document.getElementById('alertList').innerHTML = '<div class="alert-row"><div class="alert-icon alert-info-icon">i</div><div><div class="alert-text">Alert log cleared.</div><div class="alert-time">Now</div></div></div>';
+}
+</script>
