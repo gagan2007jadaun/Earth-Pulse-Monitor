@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Smart Geocell Road – Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .login-card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 420px; width: 100%; animation: slideUp 0.6s ease; }
+  .login-title { font-size: 24px; font-weight: 600; margin-bottom: 24px; color: var(--text-primary); text-align: center; }
+  .input-group { margin-bottom: 20px; text-align: left; }
+  .input-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .access-input { width: 100%; padding: 14px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 16px; background: rgba(0,0,0,0.2); color: var(--text-primary); outline: none; transition: border 0.3s; font-family: monospace; letter-spacing: 1px; }
+  .access-input:focus { border-color: var(--blue); }
+  [data-theme="light"] .access-input { background: #fff; }
+  [data-theme="light"] .login-card { border-color: rgba(0,0,0,0.1); }
+  .error-msg { color: var(--danger-text); font-size: 13px; margin-top: 8px; font-weight: 500; display: none; }
+
+  /* Fake SMS Notification styling */
+  .fake-sms { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); padding: 16px 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 14px; z-index: 9999; color: #1a1a1a; min-width: 320px; transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .fake-sms.show { top: 20px; }
+  .sms-icon { font-size: 24px; }
+  .sms-title { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .sms-text { font-size: 14px; font-weight: 500; line-height: 1.4; }
+  
+  .mode-switch { font-size: 13px; color: var(--blue); text-align: center; margin-top: 20px; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+
+  /* OTP boxes for styling */
+  .otp-container { display: flex; gap: 10px; justify-content: space-between; }
+  .otp-input { width: 45px; height: 50px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-primary); font-size: 20px; font-weight: 600; text-align: center; outline: none; transition: all 0.3s; }
+  .otp-input:focus { border-color: var(--blue); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+  [data-theme="light"] .otp-input { background: #fff; }
+
+  /* Section Toggles */
+  #adminSection, #otpSection { display: none; }
+</style>
+</head>
+<body>
+
+<div class="fake-sms" id="smsNotif">
+  <div class="sms-icon">💬</div>
+  <div>
+    <div class="sms-title">Messages</div>
+    <div class="sms-text" id="smsContent">Your access code is: 123456</div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="login-card">
+    <div class="login-title" id="formTitle">User Access</div>
+
+    <!-- Phone Number Entry -->
+    <div id="phoneSection">
+      <div class="input-group">
+        <label class="input-label">Phone Number</label>
+        <input type="tel" id="userPhone" class="access-input" placeholder="+91 9876543210" onkeypress="checkEnterPhone(event)">
+        <div class="error-msg" id="phoneError">Please enter a valid phone number.</div>
+      </div>
+      <button class="pulse-btn" onclick="sendSmsOtp()" style="width:100%">Send SMS Code</button>
+      <div class="mode-switch" onclick="switchMode('admin')">Login as Administrator</div>
+    </div>
+
+    <!-- OTP Entry -->
+    <div id="otpSection">
+      <p style="font-size:14px; color:var(--text-secondary); text-align:center; margin-bottom:20px;">
+        We've sent a 6-digit access code to <span id="displayPhone" style="color:var(--text-primary);font-weight:600;"></span>
+      </p>
+      <div class="input-group">
+        <div class="otp-container" id="otpInputs">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,1)" onkeypress="onlyNumberKey(event)" id="otp1">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,2)" onkeypress="onlyNumberKey(event)" id="otp2">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,3)" onkeypress="onlyNumberKey(event)" id="otp3">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,4)" onkeypress="onlyNumberKey(event)" id="otp4">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,5)" onkeypress="onlyNumberKey(event)" id="otp5">
+          <input type="text" maxlength="1" class="otp-input" onkeyup="focusNext(this,6)" onkeypress="onlyNumberKey(event)" id="otp6">
+        </div>
+        <div class="error-msg" id="otpError" style="text-align:center; margin-top:12px;">Invalid code. Please try again.</div>
+      </div>
+      <button class="pulse-btn green-btn" onclick="verifyOtp()" style="width:100%">Verify Code</button>
+      <div class="mode-switch" onclick="switchMode('phone')">Change phone number</div>
+    </div>
+
+    <!-- Admin Master Key Entry -->
+    <div id="adminSection">
+      <div class="input-group">
+        <label class="input-label">Master Access Key</label>
+        <input type="password" id="accessKey" class="access-input" placeholder="Enter GEO2024..." onkeypress="checkEnterAdmin(event)">
+        <div class="error-msg" id="adminError">Invalid master key!</div>
+      </div>
+      <button class="pulse-btn" onclick="verifyAdmin()" style="width:100%">Enter Dashboard</button>
+      <div class="mode-switch" onclick="switchMode('phone')">Back to User Login</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let generatedOtp = '';
+
+  function switchMode(mode) {
+    document.getElementById('phoneSection').style.display = 'none';
+    document.getElementById('otpSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = 'none';
+    
+    if (mode === 'admin') {
+      document.getElementById('adminSection').style.display = 'block';
+      document.getElementById('formTitle').textContent = 'Admin Login';
+    } else if (mode === 'phone') {
+      document.getElementById('phoneSection').style.display = 'block';
+      document.getElementById('formTitle').textContent = 'User Access';
+      document.getElementById('smsNotif').classList.remove('show');
+    } else if (mode === 'otp') {
+      document.getElementById('otpSection').style.display = 'block';
+      document.getElementById('formTitle').textContent = 'Enter Verification';
+      setTimeout(()=> document.getElementById('otp1').focus(), 100);
+    }
+  }
+
+  function simulateSms(otpCode) {
+    const notif = document.getElementById('smsNotif');
+    document.getElementById('smsContent').innerHTML = `EarthPulse: Your login access key is <b>${otpCode}</b>`;
+    notif.classList.add('show');
+    // Hide after 6 seconds
+    setTimeout(() => { notif.classList.remove('show'); }, 6000);
+  }
+
+  function sendSmsOtp() {
+    const phone = document.getElementById('userPhone').value.trim();
+    const err = document.getElementById('phoneError');
+    if (phone.length < 5) {
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+    
+    // Generate random 6-digit access key
+    generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    document.getElementById('displayPhone').textContent = phone;
+    switchMode('otp');
+    
+    // Simulate the SMS arriving after 1.5 seconds
+    setTimeout(() => { simulateSms(generatedOtp); }, 1500);
+  }
+
+  function verifyOtp() {
+    const entered = Array.from({length:6}, (_,i) => document.getElementById('otp'+(i+1)).value).join('');
+    const err = document.getElementById('otpError');
+    if (entered === generatedOtp && generatedOtp !== '') {
+      err.style.display = 'none';
+      window.location.href = 'dashboard.html';
+    } else {
+      err.style.display = 'block';
+    }
+  }
+
+  function focusNext(ele, index) {
+    if(ele.value.length === 1 && index < 6) {
+      document.getElementById('otp' + (index + 1)).focus();
+    } else if(ele.value.length === 0 && index > 1) {
+      // Allow backspace clearing flow
+      document.getElementById('otp' + (index - 1)).focus();
+    }
+    // Auto-verify if all 6 filled
+    let allFilled = true;
+    for(let i=1; i<=6; i++) { if(!document.getElementById('otp'+i).value) allFilled = false; }
+    if(allFilled && ele.value.length === 1) verifyOtp();
+  }
+
+  function verifyAdmin() {
+    const key = document.getElementById('accessKey').value;
+    const error = document.getElementById('adminError');
+    if (key === 'GEO2024') {
+      window.location.href = 'dashboard.html';
+    } else {
+      error.style.display = 'block';
+    }
+  }
+
+  function checkEnterPhone(e) { if (e.key === 'Enter') sendSmsOtp(); }
+  function checkEnterAdmin(e) { if (e.key === 'Enter') verifyAdmin(); }
+  function onlyNumberKey(evt) {
+    var ASCIICode = (evt.which) ? evt.which : evt.keyCode;
+    if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) return false;
+    return true;
+  }
+</script>
+
+</body>
+</html>
