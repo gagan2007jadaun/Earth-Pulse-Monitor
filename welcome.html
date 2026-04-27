@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Smart Geocell Road – Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .welcome-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .namaste-text {
+    font-size: 80px; 
+    font-weight: 800; 
+    background: linear-gradient(to right, #F59E0B, #EF4444); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+    margin-bottom: 20px; 
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: scaleIn 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .sub-welcome {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    opacity: 0;
+    animation: slideUp 1s ease-out 1s forwards;
+    margin-bottom: 50px;
+  }
+  .continue-btn {
+    opacity: 0;
+    animation: slideUp 1s ease-out 1.6s forwards;
+  }
+
+  @keyframes scaleIn {
+    0% { opacity: 0; transform: scale(0.6) translateY(20px); filter: blur(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  }
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  [data-theme="light"] .namaste-text {
+    background: linear-gradient(to right, #EA580C, #DC2626);
+    -webkit-background-clip: text; 
+  }
+</style>
+</head>
+<body>
+
+<div class="screen" style="display:flex;">
+  <div class="welcome-wrapper">
+    <div class="namaste-text">NAMASTE 🙏</div>
+    <div class="sub-welcome">Welcome to the future of Landslide Monitoring</div>
+    <a href="credentials.html" class="pulse-btn continue-btn">View Project Credentials</a>
+  </div>
+</div>
+
+</body>
+</html>
