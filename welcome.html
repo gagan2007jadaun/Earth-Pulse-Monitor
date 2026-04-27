@@ -13,36 +13,68 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    position: relative;
+  }
+  .namaste-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 380px;
+    margin-bottom: 20px;
+  }
+  .namaste-image {
+    position: absolute;
+    width: 90vw;
+    max-width: 650px;
+    height: auto;
+    z-index: 0;
+    opacity: 0;
+    animation: 
+      slideInImg 1.5s ease-out forwards,
+      floatImg 4s ease-in-out infinite alternate 1.5s;
   }
   .namaste-text {
-    font-size: 80px; 
+    position: relative;
+    z-index: 1;
+    font-size: 130px; 
     font-weight: 800; 
-    background: linear-gradient(to right, #F59E0B, #EF4444); 
+    background: linear-gradient(to right, #FCD34D, #F59E0B, #EF4444); 
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
-    margin-bottom: 20px; 
-    letter-spacing: 2px;
+    letter-spacing: 6px;
     opacity: 0;
-    animation: scaleIn 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: textPop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s forwards;
+    /* Drop shadow directly on the text container to make it pop against the image */
+    filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.6));
   }
   .sub-welcome {
     font-size: 24px;
     font-weight: 500;
     color: var(--text-primary);
     opacity: 0;
-    animation: slideUp 1s ease-out 1s forwards;
+    animation: slideUpText 1s ease-out 1.2s forwards;
     margin-bottom: 50px;
   }
   .continue-btn {
     opacity: 0;
-    animation: slideUp 1s ease-out 1.6s forwards;
+    animation: slideUpText 1s ease-out 1.6s forwards;
   }
 
-  @keyframes scaleIn {
-    0% { opacity: 0; transform: scale(0.6) translateY(20px); filter: blur(10px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  @keyframes slideInImg {
+    0% { opacity: 0; transform: scale(0.6) translateY(40px); filter: blur(5px); }
+    100% { opacity: 0.3; transform: scale(1) translateY(0); filter: blur(1px); }
   }
-  @keyframes slideUp {
+  @keyframes floatImg {
+    0% { transform: scale(1) translateY(0); opacity: 0.3; filter: blur(1px); }
+    100% { transform: scale(1.05) translateY(-10px); opacity: 0.5; filter: blur(0px) drop-shadow(0 0 30px rgba(245, 158, 11, 0.4)); }
+  }
+  @keyframes textPop {
+    0% { opacity: 0; transform: scale(0.7) translateY(20px); filter: drop-shadow(0px 0px 0px rgba(0,0,0,0)); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: drop-shadow(0px 10px 25px rgba(0,0,0,0.8)); }
+  }
+  @keyframes slideUpText {
     0% { opacity: 0; transform: translateY(20px); }
     100% { opacity: 1; transform: translateY(0); }
   }
@@ -57,7 +89,10 @@
 
 <div class="screen" style="display:flex;">
   <div class="welcome-wrapper">
-    <div class="namaste-text">NAMASTE 🙏</div>
+    <div class="namaste-container">
+      <img src="namaste.png" alt="Namaste Hands" class="namaste-image">
+      <div class="namaste-text">NAMASTE</div>
+    </div>
     <div class="sub-welcome">Welcome to the future of Landslide Monitoring</div>
     <a href="credentials.html" class="pulse-btn continue-btn">View Project Credentials</a>
   </div>
