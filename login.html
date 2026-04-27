@@ -125,7 +125,7 @@
     setTimeout(() => { notif.classList.remove('show'); }, 6000);
   }
 
-  function sendSmsOtp() {
+  async function sendSmsOtp() {
     const phone = document.getElementById('userPhone').value.trim();
     const err = document.getElementById('phoneError');
     if (phone.length < 5) {
@@ -140,7 +140,20 @@
     document.getElementById('displayPhone').textContent = phone;
     switchMode('otp');
     
-    // Simulate the SMS arriving after 1.5 seconds
+    // Send API Request to local Node.js backend
+    try {
+      const response = await fetch('http://localhost:3000/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone, otp: generatedOtp })
+      });
+      const data = await response.json();
+      console.log('Server:', data.message);
+    } catch(err) {
+      console.log('Backend offline, running frontend simulation only.');
+    }
+    
+    // Simulate the SMS visually on the screen
     setTimeout(() => { simulateSms(generatedOtp); }, 1500);
   }
 
