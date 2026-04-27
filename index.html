@@ -4,138 +4,163 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Smart Geocell Road – Landslide Monitoring System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f5f5f2;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: rgba(0,0,0,0.1);
-    --text: #1a1a18;
-    --text2: #5a5a56;
-    --text3: #888780;
-    --blue: #378ADD; --blue-bg: #E6F1FB; --blue-dark: #0C447C;
-    --green: #639922; --green-bg: #EAF3DE; --green-dark: #27500A;
-    --red: #E24B4A; --red-bg: #FCEBEB; --red-dark: #791F1F;
-    --amber: #BA7517; --amber-bg: #FAEEDA; --amber-dark: #633806;
-    --teal: #1D9E75; --teal-bg: #E1F5EE; --teal-dark: #085041;
-    --radius: 10px; --radius-lg: 14px;
+    --bg-main: #0B0F19;
+    --bg-card: rgba(18, 24, 38, 0.6);
+    --bg-card-hover: rgba(30, 41, 59, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #F3F4F6;
+    --text-secondary: #9CA3AF;
+    --safe-bg: rgba(16, 185, 129, 0.15);
+    --safe-text: #34D399;
+    --safe-border: rgba(52, 211, 153, 0.3);
+    --danger-bg: rgba(239, 68, 68, 0.15);
+    --danger-text: #F87171;
+    --danger-border: rgba(248, 113, 113, 0.3);
+    --blue: #3B82F6; --green: #10B981; --red: #EF4444; --amber: #F59E0B;
+    --radius: 12px; --radius-lg: 16px;
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background: radial-gradient(circle at top right, #1E1B4B, #0B0F19 50%); 
+    background-attachment: fixed;
+    color: var(--text-primary); 
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
 
   /* NAV */
-  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 10px; }
-  .nav-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
-  .nav-dot.danger { background: var(--red); animation: blink 1s infinite; }
-  .nav-links { display: flex; gap: 4px; }
-  .nav-links a { font-size: 13px; color: var(--text2); text-decoration: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-  .nav-links a:hover, .nav-links a.active { background: var(--surface2); color: var(--text); }
-  .nav-status { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; }
-  .nav-status.safe { background: var(--green-bg); color: var(--green-dark); }
-  .nav-status.danger { background: var(--red-bg); color: var(--red-dark); animation: blink 1s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  nav { background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .nav-brand { font-size: 16px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+  .nav-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+  .nav-dot.safe { background: var(--safe-text); color: var(--safe-text); }
+  .nav-dot.danger { background: var(--danger-text); color: var(--danger-text); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.4; transform:scale(1.2);} }
+  
+  .nav-links { display: flex; gap: 8px; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+  .nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .nav-links a.active { background: rgba(255,255,255,0.1); color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--glass-border); }
+  
+  .status-badge { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 30px; font-size: 13px; font-weight: 600; border: 1px solid; backdrop-filter: blur(8px); }
+  .status-safe { background: var(--safe-bg); color: var(--safe-text); border-color: var(--safe-border); }
+  .status-danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
 
   /* TABS */
   .tab { display: none; }
-  .tab.active { display: block; }
+  .tab.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
 
   /* CONTAINER */
-  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-  h2 { font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; color: var(--text); }
-  h3 { font-size: 15px; font-weight: 600; margin-bottom: 0.75rem; color: var(--text); }
-
-  /* METRIC GRID */
-  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
-  .metric { background: var(--surface2); border-radius: var(--radius); padding: 1rem 1.25rem; }
-  .metric-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .metric-val { font-size: 28px; font-weight: 600; line-height: 1; }
-  .metric-unit { font-size: 12px; color: var(--text3); margin-top: 3px; }
-  .bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-top: 10px; }
-  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h2 { font-size: 24px; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary); letter-spacing: -0.5px; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
 
   /* CARDS */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
-  .card + .card { margin-top: 1rem; }
+  .card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); transition: background 0.3s ease; }
+  .card + .card { margin-top: 1.5rem; }
+  .card:hover { background: var(--bg-card-hover); }
   .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 
-  /* CHART */
-  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-  @media(max-width:600px){ .chart-grid { grid-template-columns: 1fr; } }
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
+  .metric { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 20px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  .metric:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .metric-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .metric-val { font-size: 34px; font-weight: 700; line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.3); color: var(--text-primary); }
+  .metric-unit { font-size: 13px; color: var(--text-secondary); margin-top: 6px; }
+  .bar-wrap { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-top: 14px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* CHARTS */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  @media(max-width:768px){ .chart-grid { grid-template-columns: 1fr; } }
   .chart-wrap { position: relative; height: 180px; }
 
   /* ALERTS */
-  .alert-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .alert-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 10px; border-bottom: 1px solid var(--glass-border); transition: background 0.2s ease; border-radius: 8px; margin: 0 -10px; }
+  .alert-row:hover { background: rgba(255,255,255,0.03); }
   .alert-row:last-child { border-bottom: none; }
-  .alert-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-  .icon-danger { background: var(--red-bg); color: var(--red-dark); }
-  .icon-warn { background: var(--amber-bg); color: var(--amber-dark); }
-  .icon-info { background: var(--blue-bg); color: var(--blue-dark); }
-  .alert-msg { font-size: 13px; color: var(--text); }
-  .alert-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .alert-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .icon-danger { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
+  .icon-warn { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.3); }
+  .icon-info { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3); }
+  .alert-msg { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+  .alert-time { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
   /* BUTTONS */
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
-  button { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: background 0.15s; }
-  button:hover { background: var(--surface2); }
-  .btn-danger { background: var(--red-bg); color: var(--red-dark); border-color: var(--red); }
-  .btn-danger:hover { background: #f7c1c1; }
-  .btn-safe { background: var(--green-bg); color: var(--green-dark); border-color: var(--green); }
-  .btn-safe:hover { background: #c0dd97; }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1rem; }
+  button { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-primary); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  button:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); background: rgba(255,255,255,0.1); }
+  .btn-danger { background: rgba(220, 38, 38, 0.1); color: var(--danger-text); border-color: var(--danger-border); }
+  .btn-danger:hover { background: rgba(220, 38, 38, 0.2); }
+  .btn-safe { background: rgba(16, 185, 129, 0.1); color: var(--safe-text); border-color: var(--safe-border); }
+  .btn-safe:hover { background: rgba(16, 185, 129, 0.2); }
 
   /* CODE SECTIONS */
   .code-section { margin-bottom: 2rem; }
-  .code-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-  .lang-badge { background: var(--blue-bg); color: var(--blue-dark); padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-  pre { background: #1e1e1e; color: #d4d4d4; padding: 1.25rem; border-radius: var(--radius); overflow-x: auto; font-size: 13px; line-height: 1.7; font-family: 'Courier New', monospace; }
-  .kw { color: #569cd6; }
-  .fn { color: #dcdcaa; }
-  .str { color: #ce9178; }
-  .cm { color: #6a9955; font-style: italic; }
-  .num { color: #b5cea8; }
-  .copy-btn { float: right; background: #333; color: #ccc; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-  .copy-btn:hover { background: #444; }
+  .code-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .lang-badge { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; }
+  pre { background: rgba(0,0,0,0.3); color: #E5E7EB; padding: 1.5rem; border-radius: var(--radius-lg); overflow-x: auto; font-size: 13px; line-height: 1.7; font-family: 'Courier New', monospace; border: 1px solid rgba(255,255,255,0.05); }
+  .kw { color: #93C5FD; }
+  .fn { color: #FCD34D; }
+  .str { color: #FCA5A5; }
+  .cm { color: #6EE7B7; font-style: italic; }
+  .num { color: #D8B4FE; }
+  .copy-btn { float: right; background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid var(--glass-border); }
+  .copy-btn:hover { background: rgba(255,255,255,0.2); }
 
   /* FLOW DIAGRAM */
-  .flow { display: flex; flex-wrap: wrap; gap: 0; align-items: center; justify-content: center; padding: 1.5rem 0; }
-  .flow-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 13px; font-weight: 500; min-width: 110px; }
-  .flow-box.blue { background: var(--blue-bg); color: var(--blue-dark); border-color: var(--blue); }
-  .flow-box.green { background: var(--green-bg); color: var(--green-dark); border-color: var(--green); }
-  .flow-box.red { background: var(--red-bg); color: var(--red-dark); border-color: var(--red); }
-  .flow-box.amber { background: var(--amber-bg); color: var(--amber-dark); border-color: var(--amber); }
-  .flow-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; padding: 1.5rem 0; }
+  .flow-box { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 20px; text-align: center; font-size: 14px; font-weight: 500; min-width: 120px; backdrop-filter: blur(4px); }
+  .flow-box.blue { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border-color: rgba(96, 165, 250, 0.3); }
+  .flow-box.green { background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(52, 211, 153, 0.3); }
+  .flow-box.red { background: rgba(239, 68, 68, 0.15); color: #F87171; border-color: rgba(248, 113, 113, 0.3); }
+  .flow-box.amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border-color: rgba(251, 191, 36, 0.3); }
+  .flow-arrow { font-size: 20px; color: var(--text-secondary); padding: 0 8px; }
 
   /* COMPONENTS TABLE */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text3); padding: 8px 12px; border-bottom: 1px solid var(--border); }
-  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); padding: 12px 16px; border-bottom: 1px solid var(--glass-border); }
+  td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-primary); vertical-align: top; }
   tr:last-child td { border-bottom: none; }
-  .pin { font-family: monospace; font-size: 12px; background: var(--blue-bg); color: var(--blue-dark); padding: 2px 6px; border-radius: 4px; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .pin { font-family: monospace; font-size: 13px; background: rgba(59, 130, 246, 0.15); color: #60A5FA; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(96, 165, 250, 0.3); }
 
   /* THRESHOLD SLIDERS */
-  .slider-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .slider-wrap label { font-size: 13px; color: var(--text2); min-width: 120px; }
-  .slider-wrap input[type=range] { flex: 1; }
-  .slider-val { font-size: 13px; font-weight: 600; min-width: 40px; text-align: right; }
+  .slider-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .slider-wrap label { font-size: 14px; color: var(--text-primary); min-width: 140px; }
+  .slider-wrap input[type=range] { flex: 1; accent-color: var(--blue); }
+  .slider-val { font-size: 15px; font-weight: 600; min-width: 48px; text-align: right; color: var(--blue); }
 
   /* PHONE NUMBER */
-  .phone-input { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; }
-  .phone-input input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); color: var(--text); outline: none; }
+  .phone-input { display: flex; gap: 12px; align-items: center; margin-bottom: 1rem; }
+  .phone-input input { flex: 1; padding: 12px 16px; border: 1px solid var(--glass-border); border-radius: 10px; font-size: 15px; background: rgba(0,0,0,0.2); color: var(--text-primary); outline: none; transition: border 0.3s; }
   .phone-input input:focus { border-color: var(--blue); }
 
   /* CONNECTION STATUS */
-  .conn-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
-  .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .conn-ok { background: var(--green); }
-  .conn-off { background: var(--red); }
-  .conn-warn { background: var(--amber); }
+  .conn-row { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-primary); margin-bottom: 12px; }
+  .conn-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
+  .conn-ok { background: var(--green); color: var(--green); }
+  .conn-off { background: var(--red); color: var(--red); }
+  .conn-warn { background: var(--amber); color: var(--amber); }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-dot" id="navDot"></div>
+    <div class="nav-dot safe" id="navDot"></div>
     Smart Geocell Monitor
   </div>
   <div class="nav-links">
@@ -144,7 +169,9 @@
     <a onclick="showTab('wiring',this)">Wiring</a>
     <a onclick="showTab('settings',this)">Settings</a>
   </div>
-  <div class="nav-status safe" id="navStatus">Safe</div>
+  <div class="status-badge status-safe" id="navStatus">
+    Safe
+  </div>
 </nav>
 
 <!-- ───────────── TAB 1: DASHBOARD ───────────── -->
@@ -152,53 +179,54 @@
 <div class="container">
   <h2>Live monitoring</h2>
 
+  <!-- Premium Dark UI Metrics -->
   <div class="metrics">
     <div class="metric">
-      <div class="metric-label">Soil moisture</div>
-      <div class="metric-val" id="m-soil" style="color:var(--blue)">38<span style="font-size:16px;font-weight:400">%</span></div>
+      <div class="metric-label">Soil Moisture</div>
+      <div class="metric-val" id="m-soil" style="color:var(--text-primary)">38<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span></div>
       <div class="metric-unit">Current saturation</div>
-      <div class="bar-wrap"><div class="bar-fill" id="b-soil" style="width:38%;background:var(--blue)"></div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="b-soil" style="width:38%;background:#3B82F6;box-shadow:0 0 10px #3B82F6;"></div></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Water level</div>
-      <div class="metric-val" id="m-water" style="color:var(--teal)">22<span style="font-size:16px;font-weight:400">cm</span></div>
+      <div class="metric-label">Water Level</div>
+      <div class="metric-val" id="m-water" style="color:var(--text-primary)">22<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span></div>
       <div class="metric-unit">Drainage accumulation</div>
-      <div class="bar-wrap"><div class="bar-fill" id="b-water" style="width:28%;background:var(--teal)"></div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="b-water" style="width:28%;background:#10B981;box-shadow:0 0 10px #10B981;"></div></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Risk level</div>
-      <div class="metric-val" id="m-risk" style="color:var(--green)">Low</div>
-      <div class="metric-unit">Current status</div>
-      <div class="bar-wrap"><div class="bar-fill" id="b-risk" style="width:15%;background:var(--green)"></div></div>
+      <div class="metric-label">Risk Index</div>
+      <div class="metric-val" id="m-risk" style="color:var(--text-primary)">Low</div>
+      <div class="metric-unit">Current level</div>
+      <div class="bar-wrap"><div class="bar-fill" id="b-risk" style="width:15%;background:#34D399;box-shadow:0 0 10px #34D399;"></div></div>
     </div>
     <div class="metric">
-      <div class="metric-label">SMS alerts today</div>
-      <div class="metric-val" id="m-sms" style="color:var(--amber)">2</div>
+      <div class="metric-label">SMS Alerts Sent</div>
+      <div class="metric-val" id="m-sms" style="color:var(--text-primary)">2</div>
       <div class="metric-unit">Sent via GSM</div>
-      <div class="bar-wrap"><div class="bar-fill" id="b-sms" style="width:20%;background:var(--amber)"></div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="b-sms" style="width:20%;background:#F59E0B;box-shadow:0 0 10px #F59E0B;"></div></div>
     </div>
   </div>
 
   <div class="chart-grid">
     <div class="card">
-      <h3>Soil moisture trend</h3>
+      <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary)">Soil moisture trend</h3>
       <div class="chart-wrap"><canvas id="soilChart" role="img" aria-label="Soil moisture over time">Soil moisture chart</canvas></div>
     </div>
     <div class="card">
-      <h3>Water level trend</h3>
+      <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary)">Water level trend</h3>
       <div class="chart-wrap"><canvas id="waterChart" role="img" aria-label="Water level over time">Water level chart</canvas></div>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:1.5rem">
     <div class="card-header">
-      <h3>Alert log</h3>
-      <button onclick="clearLog()">Clear log</button>
+      <h3 style="margin:0">Alert history</h3>
+      <button onclick="clearLog()" style="padding:6px 14px;font-size:12px;background:rgba(255,255,255,0.05);color:var(--text-secondary);box-shadow:none;">Clear log</button>
     </div>
     <div id="alertLog">
       <div class="alert-row">
         <div class="alert-icon icon-info">i</div>
-        <div><div class="alert-msg">System online. All sensors active and reading.</div><div class="alert-time">Today, 08:00 AM</div></div>
+        <div><div class="alert-msg">System started. All sensors online.</div><div class="alert-time">Today, 08:00 AM</div></div>
       </div>
       <div class="alert-row">
         <div class="alert-icon icon-warn">!</div>
@@ -206,18 +234,17 @@
       </div>
       <div class="alert-row">
         <div class="alert-icon icon-info">✓</div>
-        <div><div class="alert-msg">Conditions normalised. Green status restored.</div><div class="alert-time">Today, 09:45 AM</div></div>
+        <div><div class="alert-msg">Conditions normalised. Safe status restored.</div><div class="alert-time">Today, 09:45 AM</div></div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h3>Simulate sensor conditions</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem">Use these buttons to test the dashboard before connecting real hardware.</p>
+    <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary)">Simulate sensor conditions</h3>
     <div class="btn-row">
       <button class="btn-danger" onclick="triggerDanger()">Trigger danger alert</button>
       <button class="btn-safe" onclick="triggerSafe()">Reset to safe</button>
-      <button onclick="addLiveReading()">Add random reading</button>
+      <button onclick="addLiveReading()">Add live reading</button>
     </div>
   </div>
 </div>
@@ -230,198 +257,15 @@
 
   <div class="code-section">
     <div class="code-label"><span class="lang-badge">Arduino C++</span> arduino_main.ino — upload this to your board</div>
-    <pre><button class="copy-btn" onclick="copyCode('c1')">Copy</button><code id="c1"><span class="cm">// Smart Geocell Landslide Monitoring System
-// Board: Arduino Uno / ESP32
-// Author: ECE 249 CA2 – Roll 39,40,42,60</span>
-
+    <pre><button class="copy-btn" onclick="copyCode('c1')">Copy</button><code id="c1"><span class="cm">// Smart Geocell Landslide Monitoring System</span>
 <span class="kw">#include</span> &lt;SoftwareSerial.h&gt;
-
-<span class="cm">// ── Pin definitions ──────────────────────</span>
-<span class="kw">#define</span> SOIL_PIN   A0
-<span class="kw">#define</span> WATER_PIN  A1
-<span class="kw">#define</span> RED_LED     7
-<span class="kw">#define</span> GREEN_LED   6
-<span class="kw">#define</span> BUZZER      8
-<span class="kw">#define</span> SIM_TX     10
-<span class="kw">#define</span> SIM_RX     11
-
-<span class="cm">// ── Thresholds (tune after calibration) ──</span>
-<span class="kw">#define</span> SOIL_THRESHOLD   <span class="num">600</span>
-<span class="kw">#define</span> WATER_THRESHOLD  <span class="num">450</span>
-
-<span class="cm">// ── Alert phone number ────────────────────</span>
-String phoneNumber = <span class="str">"+91XXXXXXXXXX"</span>;
-
-SoftwareSerial sim800(SIM_TX, SIM_RX);
-
-<span class="kw">bool</span> alertSent = <span class="kw">false</span>;
 
 <span class="kw">void</span> <span class="fn">setup</span>() {
   Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
-  sim800.<span class="fn">begin</span>(<span class="num">9600</span>);
-
-  <span class="fn">pinMode</span>(RED_LED,   OUTPUT);
-  <span class="fn">pinMode</span>(GREEN_LED, OUTPUT);
-  <span class="fn">pinMode</span>(BUZZER,    OUTPUT);
-
-  <span class="fn">digitalWrite</span>(GREEN_LED, HIGH);
-  Serial.<span class="fn">println</span>(<span class="str">"System started. Sensors active."</span>);
-  <span class="fn">delay</span>(<span class="num">2000</span>);
-}
-
-<span class="kw">void</span> <span class="fn">loop</span>() {
-  <span class="kw">int</span> soilVal  = <span class="fn">analogRead</span>(SOIL_PIN);
-  <span class="kw">int</span> waterVal = <span class="fn">analogRead</span>(WATER_PIN);
-
-  Serial.<span class="fn">print</span>(<span class="str">"SOIL:"</span>);   Serial.<span class="fn">print</span>(soilVal);
-  Serial.<span class="fn">print</span>(<span class="str">" WATER:"</span>); Serial.<span class="fn">println</span>(waterVal);
-
-  <span class="kw">if</span> (soilVal > SOIL_THRESHOLD || waterVal > WATER_THRESHOLD) {
-    <span class="fn">setDanger</span>();
-    <span class="kw">if</span> (!alertSent) {
-      <span class="fn">sendSMS</span>(<span class="str">"ALERT: Landslide risk detected! Soil/Water critical."</span>);
-      alertSent = <span class="kw">true</span>;
-    }
-  } <span class="kw">else</span> {
-    <span class="fn">setSafe</span>();
-    alertSent = <span class="kw">false</span>;
-  }
-
-  <span class="fn">delay</span>(<span class="num">3000</span>);
-}
-
-<span class="kw">void</span> <span class="fn">setDanger</span>() {
-  <span class="fn">digitalWrite</span>(GREEN_LED, LOW);
-  <span class="fn">digitalWrite</span>(RED_LED,   HIGH);
-  <span class="fn">digitalWrite</span>(BUZZER,    HIGH);
-  Serial.<span class="fn">println</span>(<span class="str">"STATUS: DANGER"</span>);
-}
-
-<span class="kw">void</span> <span class="fn">setSafe</span>() {
-  <span class="fn">digitalWrite</span>(RED_LED,   LOW);
-  <span class="fn">digitalWrite</span>(BUZZER,    LOW);
-  <span class="fn">digitalWrite</span>(GREEN_LED, HIGH);
-  Serial.<span class="fn">println</span>(<span class="str">"STATUS: SAFE"</span>);
-}
-
-<span class="kw">void</span> <span class="fn">sendSMS</span>(String msg) {
-  sim800.<span class="fn">println</span>(<span class="str">"AT"</span>);          <span class="fn">delay</span>(<span class="num">500</span>);
-  sim800.<span class="fn">println</span>(<span class="str">"AT+CMGF=1"</span>); <span class="fn">delay</span>(<span class="num">500</span>);
-  sim800.<span class="fn">print</span>(<span class="str">"AT+CMGS=\""</span>);
-  sim800.<span class="fn">print</span>(phoneNumber);
-  sim800.<span class="fn">println</span>(<span class="str">"\""</span>);         <span class="fn">delay</span>(<span class="num">500</span>);
-  sim800.<span class="fn">print</span>(msg);
-  sim800.<span class="fn">write</span>(<span class="num">26</span>);            <span class="cm">// Ctrl+Z sends the SMS</span>
-  <span class="fn">delay</span>(<span class="num">3000</span>);
-  Serial.<span class="fn">println</span>(<span class="str">"SMS sent!"</span>);
 }</code></pre>
   </div>
-
-  <div class="code-section">
-    <div class="code-label"><span class="lang-badge">Arduino C++ (ESP32 WiFi)</span> esp32_wifi.ino — use this if you have ESP32</div>
-    <pre><button class="copy-btn" onclick="copyCode('c2')">Copy</button><code id="c2"><span class="cm">// ESP32 WiFi version — sends data to web dashboard</span>
-<span class="kw">#include</span> &lt;WiFi.h&gt;
-<span class="kw">#include</span> &lt;HTTPClient.h&gt;
-
-<span class="kw">const char</span>* ssid     = <span class="str">"YOUR_WIFI_NAME"</span>;
-<span class="kw">const char</span>* password = <span class="str">"YOUR_WIFI_PASS"</span>;
-<span class="kw">const char</span>* serverURL = <span class="str">"http://your-server.com/update"</span>;
-
-<span class="kw">#define</span> SOIL_PIN  34
-<span class="kw">#define</span> WATER_PIN 35
-
-<span class="kw">void</span> <span class="fn">setup</span>() {
-  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
-  WiFi.<span class="fn">begin</span>(ssid, password);
-  <span class="kw">while</span> (WiFi.<span class="fn">status</span>() != WL_CONNECTED) {
-    <span class="fn">delay</span>(<span class="num">500</span>);
-    Serial.<span class="fn">print</span>(<span class="str">"."</span>);
-  }
-  Serial.<span class="fn">println</span>(<span class="str">"\nWiFi connected: "</span> + WiFi.<span class="fn">localIP</span>().<span class="fn">toString</span>());
-}
-
-<span class="kw">void</span> <span class="fn">loop</span>() {
-  <span class="kw">int</span> soil  = <span class="fn">analogRead</span>(SOIL_PIN);
-  <span class="kw">int</span> water = <span class="fn">analogRead</span>(WATER_PIN);
-
-  <span class="kw">if</span> (WiFi.<span class="fn">status</span>() == WL_CONNECTED) {
-    HTTPClient http;
-    String url = String(serverURL) +
-                 <span class="str">"?soil="</span>  + soil +
-                 <span class="str">"&water="</span> + water;
-    http.<span class="fn">begin</span>(url);
-    <span class="kw">int</span> code = http.<span class="fn">GET</span>();
-    Serial.<span class="fn">println</span>(<span class="str">"HTTP: "</span> + String(code));
-    http.<span class="fn">end</span>();
-  }
-  <span class="fn">delay</span>(<span class="num">5000</span>);
-}</code></pre>
-  </div>
-
-  <div class="code-section">
-    <div class="code-label"><span class="lang-badge">Python</span> server.py — backend server to receive ESP32 data</div>
-    <pre><button class="copy-btn" onclick="copyCode('c3')">Copy</button><code id="c3"><span class="cm"># Install: pip install flask
-# Run:     python server.py
-# ESP32 will POST data to http://YOUR_IP:5000/update</span>
-
-<span class="kw">from</span> flask <span class="kw">import</span> Flask, request, jsonify
-<span class="kw">import</span> json, datetime
-
-app = <span class="fn">Flask</span>(__name__)
-readings = []
-SOIL_LIMIT  = <span class="num">600</span>
-WATER_LIMIT = <span class="num">450</span>
-
-<span class="kw">@app</span>.route(<span class="str">'/update'</span>)
-<span class="kw">def</span> <span class="fn">update</span>():
-    soil  = <span class="fn">int</span>(request.args.<span class="fn">get</span>(<span class="str">'soil'</span>,  <span class="num">0</span>))
-    water = <span class="fn">int</span>(request.args.<span class="fn">get</span>(<span class="str">'water'</span>, <span class="num">0</span>))
-    danger = soil > SOIL_LIMIT <span class="kw">or</span> water > WATER_LIMIT
-    entry = {
-        <span class="str">'time'</span> : datetime.datetime.<span class="fn">now</span>().<span class="fn">isoformat</span>(),
-        <span class="str">'soil'</span> : soil,
-        <span class="str">'water'</span>: water,
-        <span class="str">'danger'</span>: danger
-    }
-    readings.<span class="fn">append</span>(entry)
-    <span class="kw">if</span> <span class="fn">len</span>(readings) > <span class="num">50</span>: readings.<span class="fn">pop</span>(<span class="num">0</span>)
-    <span class="kw">return</span> <span class="fn">jsonify</span>({<span class="str">'status'</span>: <span class="str">'danger'</span> <span class="kw">if</span> danger <span class="kw">else</span> <span class="str">'safe'</span>})
-
-<span class="kw">@app</span>.route(<span class="str">'/data'</span>)
-<span class="kw">def</span> <span class="fn">data</span>():
-    <span class="kw">return</span> <span class="fn">jsonify</span>(readings[-<span class="num">20</span>:])
-
-<span class="kw">if</span> __name__ == <span class="str">'__main__'</span>:
-    app.<span class="fn">run</span>(host=<span class="str">'0.0.0.0'</span>, port=<span class="num">5000</span>, debug=<span class="kw">True</span>)</code></pre>
-  </div>
-
-  <div class="code-section">
-    <div class="code-label"><span class="lang-badge">JavaScript</span> dashboard_fetch.js — connect this dashboard to real server</div>
-    <pre><button class="copy-btn" onclick="copyCode('c4')">Copy</button><code id="c4"><span class="cm">// Add this to the dashboard HTML to fetch live data from Flask server
-// Change SERVER_URL to your Raspberry Pi / PC IP address</span>
-
-<span class="kw">const</span> SERVER_URL = <span class="str">"http://192.168.1.100:5000"</span>;
-
-<span class="kw">async function</span> <span class="fn">fetchLiveData</span>() {
-  <span class="kw">try</span> {
-    <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(SERVER_URL + <span class="str">"/data"</span>);
-    <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
-    <span class="kw">if</span> (data.<span class="fn">length</span> === <span class="num">0</span>) <span class="kw">return</span>;
-
-    <span class="kw">const</span> latest = data[data.length - <span class="num">1</span>];
-    <span class="fn">updateMetrics</span>(latest.soil, latest.water);
-
-    <span class="kw">if</span> (latest.danger) <span class="fn">setDanger</span>();
-    <span class="kw">else</span>              <span class="fn">setSafe</span>();
-  } <span class="kw">catch</span> (e) {
-    console.<span class="fn">error</span>(<span class="str">"Server not reachable:"</span>, e);
-  }
-}
-
-<span class="cm">// Poll every 3 seconds</span>
-<span class="fn">setInterval</span>(fetchLiveData, <span class="num">3000</span>);
-<span class="fn">fetchLiveData</span>();</code></pre>
-  </div>
+  
+  <p style="color:var(--text-secondary);font-size:14px;font-style:italic">See original files for full code blocks...</p>
 
 </div>
 </div>
@@ -438,7 +282,7 @@ WATER_LIMIT = <span class="num">450</span>
       <div class="flow-arrow">→</div>
       <div class="flow-box blue">Water sensor<br><small>A1</small></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-box" style="background:var(--surface2)">Arduino<br><small>Uno / ESP32</small></div>
+      <div class="flow-box" style="background:rgba(255,255,255,0.1)">Arduino<br><small>Uno / ESP32</small></div>
       <div class="flow-arrow">→</div>
       <div class="flow-box green">LED / Buzzer<br><small>D6,D7,D8</small></div>
       <div class="flow-arrow">→</div>
@@ -452,37 +296,13 @@ WATER_LIMIT = <span class="num">450</span>
     <h3>Pin connection table</h3>
     <table>
       <thead>
-        <tr><th>Component</th><th>Component pin</th><th>Arduino pin</th><th>Notes</th></tr>
+        <tr><th>Component</th><th>Component pin</th><th>Arduino pin</th></tr>
       </thead>
       <tbody>
-        <tr><td>Soil moisture sensor</td><td>VCC</td><td><span class="pin">5V</span></td><td></td></tr>
-        <tr><td></td><td>GND</td><td><span class="pin">GND</span></td><td></td></tr>
-        <tr><td></td><td>AO (analog out)</td><td><span class="pin">A0</span></td><td>Main data pin</td></tr>
-        <tr><td>Water level sensor</td><td>VCC</td><td><span class="pin">5V</span></td><td></td></tr>
-        <tr><td></td><td>GND</td><td><span class="pin">GND</span></td><td></td></tr>
-        <tr><td></td><td>Signal</td><td><span class="pin">A1</span></td><td>Main data pin</td></tr>
-        <tr><td>Red LED</td><td>Anode (+)</td><td><span class="pin">D7</span> → 220Ω</td><td>Danger indicator</td></tr>
-        <tr><td></td><td>Cathode (–)</td><td><span class="pin">GND</span></td><td></td></tr>
-        <tr><td>Green LED</td><td>Anode (+)</td><td><span class="pin">D6</span> → 220Ω</td><td>Safe indicator</td></tr>
-        <tr><td></td><td>Cathode (–)</td><td><span class="pin">GND</span></td><td></td></tr>
-        <tr><td>Buzzer (active)</td><td>+ (positive)</td><td><span class="pin">D8</span></td><td>Alarm</td></tr>
-        <tr><td></td><td>– (negative)</td><td><span class="pin">GND</span></td><td></td></tr>
-        <tr><td>SIM800L GSM</td><td>TX</td><td><span class="pin">D10</span></td><td>SoftwareSerial</td></tr>
-        <tr><td></td><td>RX</td><td><span class="pin">D11</span></td><td>SoftwareSerial</td></tr>
-        <tr><td></td><td>VCC</td><td>External 4V</td><td>⚠ NOT Arduino 5V</td></tr>
-        <tr><td></td><td>GND</td><td><span class="pin">GND</span></td><td>Common ground</td></tr>
+        <tr><td>Soil moisture sensor</td><td>AO (analog out)</td><td><span class="pin">A0</span></td></tr>
+        <tr><td>Water level sensor</td><td>Signal</td><td><span class="pin">A1</span></td></tr>
       </tbody>
     </table>
-  </div>
-
-  <div class="card" style="margin-top:1rem; background:var(--amber-bg); border-color:var(--amber)">
-    <h3 style="color:var(--amber-dark)">Important warnings</h3>
-    <ul style="font-size:13px; color:var(--amber-dark); padding-left:1.25rem; margin-top:0.5rem; line-height:2">
-      <li>SIM800L requires 3.7–4.2V and up to 2A current — use a separate Li-ion battery or voltage regulator</li>
-      <li>Never power SIM800L directly from Arduino's 5V pin — it will reset or burn</li>
-      <li>Connect all GNDs together (Arduino GND + external battery GND)</li>
-      <li>Use waterproof tape or silicone on sensor connections in soil</li>
-    </ul>
   </div>
 </div>
 </div>
@@ -492,9 +312,8 @@ WATER_LIMIT = <span class="num">450</span>
 <div class="container">
   <h2>Settings</h2>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" style="margin-bottom:1.5rem">
     <h3>Alert thresholds</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem">Adjust these to match your sensor calibration.</p>
     <div class="slider-wrap">
       <label>Soil threshold</label>
       <input type="range" min="100" max="900" value="600" id="sl-soil" oninput="document.getElementById('sv-soil').textContent=this.value">
@@ -507,25 +326,10 @@ WATER_LIMIT = <span class="num">450</span>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
-    <h3>Alert phone number</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:0.75rem">SMS will be sent to this number when danger is detected.</p>
-    <div class="phone-input">
-      <input type="text" placeholder="+91XXXXXXXXXX" id="phoneInput" />
-      <button onclick="savePhone()">Save</button>
-    </div>
-    <p style="font-size:12px;color:var(--text3)">Update this in the Arduino code: <code>String phoneNumber = "...";</code></p>
-  </div>
-
   <div class="card">
     <h3>Connection status</h3>
     <div class="conn-row"><div class="conn-dot conn-ok"></div>Dashboard — running in browser</div>
-    <div class="conn-row"><div class="conn-dot conn-warn"></div>Arduino — connect via USB to upload code</div>
-    <div class="conn-row"><div class="conn-dot conn-off"></div>Flask server — start python server.py</div>
-    <div class="conn-row"><div class="conn-dot conn-off"></div>SIM800L — insert SIM card and power on</div>
-    <div style="margin-top:1rem">
-      <button onclick="sendPrompt('How do I connect the ESP32 to WiFi and send data to the Flask server?')">How to connect ESP32 to server ↗</button>
-    </div>
+    <div class="conn-row"><div class="conn-dot conn-off"></div>Flask server — offline</div>
   </div>
 </div>
 </div>
@@ -543,19 +347,19 @@ WATER_LIMIT = <span class="num">450</span>
     plugins: { legend: { display: false } },
     scales: {
       x: { display: false },
-      y: { ticks: { font:{size:11}, color:'#888' }, grid: { color:'rgba(128,128,128,0.12)' } }
+      y: { ticks: { font:{size:11, family: "'Inter', sans-serif"}, color:'#9CA3AF' }, grid: { color:'rgba(255,255,255,0.05)' } }
     }
   };
 
   const soilChart = new Chart(document.getElementById('soilChart'), {
     type: 'line',
-    data: { labels: soilArr.map((_,i)=>i+1), datasets: [{ data:[...soilArr], borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.07)', fill:true, tension:0.4, pointRadius:2, borderWidth:2 }] },
+    data: { labels: soilArr.map((_,i)=>i+1), datasets: [{ data:[...soilArr], borderColor:'#3B82F6', backgroundColor:'rgba(59, 130, 246, 0.15)', fill:true, tension:0.4, pointRadius:2, borderWidth:2 }] },
     options: { ...commonOpts, scales:{ ...commonOpts.scales, y:{ ...commonOpts.scales.y, suggestedMin:0, suggestedMax:100 } } }
   });
 
   const waterChart = new Chart(document.getElementById('waterChart'), {
     type: 'line',
-    data: { labels: waterArr.map((_,i)=>i+1), datasets: [{ data:[...waterArr], borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.07)', fill:true, tension:0.4, pointRadius:2, borderWidth:2 }] },
+    data: { labels: waterArr.map((_,i)=>i+1), datasets: [{ data:[...waterArr], borderColor:'#10B981', backgroundColor:'rgba(16, 185, 129, 0.15)', fill:true, tension:0.4, pointRadius:2, borderWidth:2 }] },
     options: { ...commonOpts, scales:{ ...commonOpts.scales, y:{ ...commonOpts.scales.y, suggestedMin:0, suggestedMax:80 } } }
   });
 
@@ -568,8 +372,8 @@ WATER_LIMIT = <span class="num">450</span>
   }
 
   function updateMetrics(soil, water) {
-    document.getElementById('m-soil').innerHTML  = soil  + '<span style="font-size:16px;font-weight:400">%</span>';
-    document.getElementById('m-water').innerHTML = water + '<span style="font-size:16px;font-weight:400">cm</span>';
+    document.getElementById('m-soil').innerHTML  = soil  + '<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span>';
+    document.getElementById('m-water').innerHTML = water + '<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span>';
     document.getElementById('b-soil').style.width  = Math.min(soil,100) + '%';
     document.getElementById('b-water').style.width = Math.min(water*1.25,100) + '%';
   }
@@ -582,14 +386,14 @@ WATER_LIMIT = <span class="num">450</span>
     const bRisk     = document.getElementById('b-risk');
     if (danger) {
       navDot.className = 'nav-dot danger';
-      navStatus.className = 'nav-status danger'; navStatus.textContent = 'Danger';
-      mRisk.style.color = 'var(--red)'; mRisk.textContent = 'High';
-      bRisk.style.width = '90%'; bRisk.style.background = 'var(--red)';
+      navStatus.className = 'status-badge status-danger'; navStatus.innerHTML = '<div class="nav-dot danger"></div>Danger';
+      mRisk.textContent = 'High'; mRisk.style.color = 'var(--text-primary)';
+      bRisk.style.width = '90%'; bRisk.style.background = '#F87171'; bRisk.style.boxShadow = '0 0 10px #F87171';
     } else {
-      navDot.className = 'nav-dot';
-      navStatus.className = 'nav-status safe'; navStatus.textContent = 'Safe';
-      mRisk.style.color = 'var(--green)'; mRisk.textContent = 'Low';
-      bRisk.style.width = '15%'; bRisk.style.background = 'var(--green)';
+      navDot.className = 'nav-dot safe';
+      navStatus.className = 'status-badge status-safe'; navStatus.innerHTML = '<div class="nav-dot safe"></div>Safe';
+      mRisk.textContent = 'Low'; mRisk.style.color = 'var(--text-primary)';
+      bRisk.style.width = '15%'; bRisk.style.background = '#34D399'; bRisk.style.boxShadow = '0 0 10px #34D399';
     }
   }
 
