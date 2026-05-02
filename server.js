@@ -6,6 +6,7 @@ const twilio = require('twilio');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // Initialize Twilio Client
 let twilioClient;
