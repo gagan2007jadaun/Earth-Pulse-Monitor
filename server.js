@@ -2,11 +2,70 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const twilio = require('twilio');
+const admin = require('firebase-admin');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// Initialize Firebase Admin
+let db = null;
+try {
+  let serviceAccount = null;
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    try {
+      serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+    } catch (err) {
+      console.log(`Warning: Could not load service account from ${process.env.FIREBASE_SERVICE_ACCOUNT_PATH}`);
+    }
+  }
+  
+  if (serviceAccount) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    db = admin.firestore();
+    console.log("Firebase Admin Initialized successfully.");
+  } else {
+    console.log("Warning: Firebase not fully initialized. Provide a valid FIREBASE_SERVICE_ACCOUNT_PATH.");
+    // Fallback if running in GCP environment without explicit keys
+    // admin.initializeApp(); 
+    // db = admin.firestore();
+  }
+} catch (e) {
+  console.error("Firebase Initialization Error:", e.message);
+}
+
+// Mock endpoint for dashboard UI
+app.get('/data', (req, res) => {
+  // Mock data for the dashboard
+  const soil = Math.floor(Math.random() * 20) + 30; // 30-50
+  const water = Math.floor(Math.random() * 20) + 10; // 10-30
+  const danger = false; // Set to false so it won't be always beeping initially
+  res.json({ soil, water, danger });
+});
+
+// API endpoint to log sensor data to Firebase
+app.post('/api/log-sensor-data', async (req, res) => {
+  if (!db) {
+    return res.status(500).json({ success: false, message: 'Firebase not initialized on server' });
+  }
+  
+  const { soilMoisture, waterLevel, dangerStatus, timestamp } = req.body;
+  try {
+    const docRef = await db.collection('sensor_logs').add({
+      soilMoisture: Number(soilMoisture),
+      waterLevel: Number(waterLevel),
+      dangerStatus: Boolean(dangerStatus),
+      timestamp: admin.firestore.FieldValue.serverTimestamp() || timestamp
+    });
+    res.json({ success: true, message: 'Data logged successfully', id: docRef.id });
+  } catch (error) {
+    console.error("Firebase Error:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // Initialize Twilio Client
 let twilioClient;

@@ -31,17 +31,25 @@
 <div class="container">
   <h2>Live monitoring</h2>
 
+  <!-- Warning popup box -->
+  <div id="warningBox" style="display:none; background:#FCEBEB;
+    border:1px solid #E24B4A; border-radius:10px; padding:16px 20px;
+    margin-bottom:1rem;">
+    <strong style="color:#791F1F; font-size:15px">ALERT!</strong>
+    <p id="warningMsg" style="color:#A32D2D; margin-top:4px; font-size:13px"></p>
+  </div>
+
   <!-- Premium Dark UI Metrics -->
   <div class="metrics">
     <div class="metric">
       <div class="metric-label">Soil Moisture</div>
-      <div class="metric-val" id="m-soil" style="color:var(--text-primary)">38<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span></div>
+      <div class="metric-val" id="m-soil" style="color:var(--text-primary)"><span id="soilVal">38</span><span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span></div>
       <div class="metric-unit">Current saturation</div>
       <div class="bar-wrap"><div class="bar-fill" id="b-soil" style="width:38%;background:#3B82F6;box-shadow:0 0 10px #3B82F6;"></div></div>
     </div>
     <div class="metric">
       <div class="metric-label">Water Level</div>
-      <div class="metric-val" id="m-water" style="color:var(--text-primary)">22<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span></div>
+      <div class="metric-val" id="m-water" style="color:var(--text-primary)"><span id="waterVal">22</span><span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span></div>
       <div class="metric-unit">Drainage accumulation</div>
       <div class="bar-wrap"><div class="bar-fill" id="b-water" style="width:28%;background:#10B981;box-shadow:0 0 10px #10B981;"></div></div>
     </div>
@@ -261,8 +269,8 @@
   }
 
   function updateMetrics(soil, water) {
-    document.getElementById('m-soil').innerHTML  = soil  + '<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span>';
-    document.getElementById('m-water').innerHTML = water + '<span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span>';
+    document.getElementById('m-soil').innerHTML  = `<span id="soilVal">${soil}</span><span style="font-size:18px;font-weight:500;color:var(--text-secondary)">%</span>`;
+    document.getElementById('m-water').innerHTML = `<span id="waterVal">${water}</span><span style="font-size:18px;font-weight:500;color:var(--text-secondary)">cm</span>`;
     document.getElementById('b-soil').style.width  = Math.min(soil,100) + '%';
     document.getElementById('b-water').style.width = Math.min(water*1.25,100) + '%';
   }
@@ -308,6 +316,7 @@
     document.getElementById('m-sms').textContent = smsCount;
     document.getElementById('b-sms').style.width = Math.min(smsCount*10,100)+'%';
     addLog('danger', `ALERT: Soil ${s}%, Water ${w}cm. SMS sent to registered number.`);
+    logToCloud(s, w, true);
   }
 
   function triggerSafe() {
@@ -318,6 +327,7 @@
     updateMetrics(s, w);
     setStatus(false);
     addLog('info', `System normalised. Soil: ${s}%, Water: ${w}cm.`);
+    logToCloud(s, w, false);
   }
 
   function addLiveReading() {
@@ -328,11 +338,30 @@
     pushChart(soilChart, soilArr, s);
     pushChart(waterChart, waterArr, w);
     updateMetrics(s, w);
+    let isDanger = false;
     if (s > 70 || w > 55) {
       setStatus(true);
+      isDanger = true;
       addLog('warn', `Reading: Soil ${s}%, Water ${w}cm — elevated risk.`);
     } else {
       addLog('info', `New reading: Soil ${s}%, Water ${w}cm — normal.`);
+    }
+    logToCloud(s, w, isDanger);
+  }
+
+  async function logToCloud(s, w, danger) {
+    try {
+      const response = await fetch('http://localhost:3000/api/log-sensor-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ soilMoisture: s, waterLevel: w, dangerStatus: danger })
+      });
+      const data = await response.json();
+      if(data.success) {
+         console.log("Logged to Firebase:", data.id);
+      }
+    } catch(err) {
+      console.error("Cloud sync failed. Make sure backend is running.", err);
     }
   }
 
@@ -408,6 +437,53 @@
     document.documentElement.setAttribute('data-theme', 'light');
     document.getElementById('themeToggle').textContent = '🌙';
   }
+
+  const SERVER = "http://localhost:3000/data";
+
+  async function fetchData() {
+    try {
+      const res  = await fetch(SERVER);
+      const data = await res.json();
+
+      // Soil aur water values update karo
+      document.getElementById("soilVal").textContent  = data.soil;
+      document.getElementById("waterVal").textContent = data.water;
+
+      if (data.danger) {
+        showWarning(data.soil, data.water);  // DANGER popup
+      } else {
+        clearWarning();                      // safe state
+      }
+    } catch(e) {
+      console.error("Server se data nahi mila:", e);
+    }
+  }
+
+  function showWarning(soil, water) {
+    document.getElementById("warningBox").style.display = "block";
+    document.getElementById("warningMsg").textContent =
+      `KHATRE KI SUCHNA! Mitti: ${soil}, Paani: ${water}`;
+    document.getElementById("navStatus").textContent  = "Khatraa!";
+    document.getElementById("navStatus").style.background = "#FCEBEB";
+    document.getElementById("navStatus").style.color = "#791F1F";
+    // Browser sound alert
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    osc.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.start(); osc.stop(ctx.currentTime + 0.3);
+  }
+
+  function clearWarning() {
+    document.getElementById("warningBox").style.display = "none";
+    document.getElementById("navStatus").textContent   = "Safe";
+    document.getElementById("navStatus").style.background = "#EAF3DE";
+    document.getElementById("navStatus").style.color  = "#27500A";
+  }
+
+  // Har 3 second mein data lo
+  setInterval(fetchData, 3000);
+  fetchData(); // pehli baar turant
 </script>
 </body>
 </html>
